@@ -6,12 +6,14 @@ import com.google.api.server.spi.config.Api;
 import com.google.api.server.spi.config.ApiMethod;
 import com.google.api.server.spi.config.ApiMethod.HttpMethod;
 import com.google.api.server.spi.response.UnauthorizedException;
+import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.users.User;
 import com.google.devrel.training.conference.Constants;
 import com.google.devrel.training.conference.domain.Profile;
 import com.google.devrel.training.conference.form.ProfileForm;
 import com.google.devrel.training.conference.form.ProfileForm.TeeShirtSize;
 import com.googlecode.objectify.Key;
+import com.googlecode.objectify.ObjectifyService;
 
 /**
  * Defines conference APIs.
@@ -48,7 +50,7 @@ public class ConferenceApi {
 
     // TODO 1 Pass the ProfileForm parameter
     // TODO 2 Pass the User parameter
-    public Profile saveProfile(ProfileForm profileForm) throws UnauthorizedException {
+    public Profile saveProfile(final User user, ProfileForm profileForm) throws UnauthorizedException {
 
         String userId = null;
         String mainEmail = null;
@@ -57,7 +59,10 @@ public class ConferenceApi {
 
         // TODO 2
         // If the user is not logged in, throw an UnauthorizedException
-
+        if (user == null) {
+        	throw new UnauthorizedException("Authorization Required");
+        }
+        
         // TODO 1
         // Set the teeShirtSize to the value sent by the ProfileForm, if sent
         // otherwise leave it as the default value
@@ -72,18 +77,27 @@ public class ConferenceApi {
 
         // TODO 2
         // Get the userId and mainEmail
-
-        // TODO 2
-        // If the displayName is null, set it to default value based on the user's email
-        // by calling extractDefaultDisplayNameFromEmail(...)
-
+        mainEmail = user.getEmail();
+        userId = user.getUserId();
+      
         // Create a new Profile entity from the
         // userId, displayName, mainEmail and teeShirtSize
-        Profile profile = new Profile(userId, displayName, mainEmail, teeShirtSize);
+        Profile profile = getProfile(user);
+        
+        if(profile == null) {
+            if(displayName == null) {
+            	displayName = extractDefaultDisplayNameFromEmail(user.getEmail());
+            }
+            profile = new Profile(userId, displayName, mainEmail, teeShirtSize);
+        } else {
+        	profile.update(new Profile(userId, displayName, mainEmail, teeShirtSize));
+        }
+        		   
 
         // TODO 3 (In Lesson 3)
         // Save the Profile entity in the datastore
-
+        ofy().save().entity(profile).now();        
+        
         // Return the profile
         return profile;
     }
@@ -105,10 +119,10 @@ public class ConferenceApi {
         }
 
         // TODO
-        // load the Profile Entity
-        String userId = ""; // TODO
-        Key key = null; // TODO
-        Profile profile = null; // TODO load the Profile entity
+        // load the Profile Entity      
+        String userId = user.getUserId(); // TODO
+        Key<Profile> key = Key.create(Profile.class, userId); // TODO
+        Profile profile = ofy().load().key(key).now();
         return profile;
     }
 }
