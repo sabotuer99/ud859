@@ -1,5 +1,6 @@
 package com.google.devrel.training.conference.domain;
 
+import com.google.devrel.training.conference.form.ProfileForm;
 import com.google.devrel.training.conference.form.ProfileForm.TeeShirtSize;
 import com.googlecode.objectify.annotation.Entity;
 import com.googlecode.objectify.annotation.Id;
@@ -46,16 +47,19 @@ public class Profile {
 		return userId;
 	}
 
-	public void update(Profile profile) {
-		if (profile.getTeeShirtSize() != null){
-			teeShirtSize = profile.getTeeShirtSize();
+	public void update(String _displayName, ProfileForm.TeeShirtSize _teeShirtSize) {
+		if (_teeShirtSize != null){
+			teeShirtSize = _teeShirtSize;
 		}
 		
-		if(profile.getDisplayName() != null){
-			displayName = profile.getDisplayName();
+		if(_displayName != null){
+			displayName = _displayName;
 		}
 	}
 	
+	public void update(Profile profile) {
+		update(profile.getDisplayName(), profile.getTeeShirtSize());
+	}
 	/**
      * Just making the default constructor private.
      */
