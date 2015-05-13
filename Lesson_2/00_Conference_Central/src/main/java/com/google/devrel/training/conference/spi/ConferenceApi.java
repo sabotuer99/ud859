@@ -55,7 +55,7 @@ public class ConferenceApi {
         String userId = null;
         String mainEmail = null;
         String displayName = "Your name will go here";
-        TeeShirtSize teeShirtSize = TeeShirtSize.NOT_SPECIFIED;
+        TeeShirtSize teeShirtSize;
 
         // TODO 2
         // If the user is not logged in, throw an UnauthorizedException
@@ -70,10 +70,7 @@ public class ConferenceApi {
         // TODO 1
         // Set the displayName to the value sent by the ProfileForm, if sent
         displayName = profileForm.getDisplayName();
-        
-        if( profileForm.getTeeShirtSize() != null) {
-        	teeShirtSize = profileForm.getTeeShirtSize();
-        }
+        teeShirtSize = profileForm.getTeeShirtSize();
 
         // TODO 2
         // Get the userId and mainEmail
@@ -88,6 +85,10 @@ public class ConferenceApi {
             if(displayName == null) {
             	displayName = extractDefaultDisplayNameFromEmail(user.getEmail());
             }
+            if(teeShirtSize == null){
+            	teeShirtSize = TeeShirtSize.NOT_SPECIFIED;
+            }
+            	
             profile = new Profile(userId, displayName, mainEmail, teeShirtSize);
         } else {
         	profile.update(new Profile(userId, displayName, mainEmail, teeShirtSize));
