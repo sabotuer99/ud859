@@ -16,6 +16,7 @@ import com.googlecode.objectify.annotation.Entity;
 import com.googlecode.objectify.annotation.Id;
 import com.googlecode.objectify.annotation.Index;
 import com.googlecode.objectify.annotation.Parent;
+import com.googlecode.objectify.condition.IfNotDefault;
 
 @Entity
 public class Conference {
@@ -43,7 +44,7 @@ public class Conference {
 	@Index
 	private List<String> topics;
 	
-	@Index
+	@Index(IfNotDefault.class)
 	private String city;
 	
 	private Date startDate;
