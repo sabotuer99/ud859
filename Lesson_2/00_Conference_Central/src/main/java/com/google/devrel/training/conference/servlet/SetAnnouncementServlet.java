@@ -31,8 +31,11 @@ public class SetAnnouncementServlet extends HttpServlet {
 
         // TODO
         // Query for conferences with less than 5 seats left
-        Iterable<Conference> iterable = null; //change this
-
+        Iterable<Conference> iterable = ofy().load().type(Conference.class)
+        		.filter("seatsAvailable <", 5)
+        		.filter("seatsAvailable >", 0)
+        		.list(); 
+        
         // TODO
         // Iterate over the conferences with less than 5 seats less
         // and get the name of each one
@@ -50,11 +53,13 @@ public class SetAnnouncementServlet extends HttpServlet {
 
             // TODO
             // Get the Memcache Service
-
-
+            MemcacheService memcacheService = MemcacheServiceFactory.getMemcacheService();
+        	String announcementKey = Constants.MEMCACHE_ANNOUNCEMENTS_KEY;
+        	
             // TODO
             // Put the announcement String in memcache,
             // keyed by Constants.MEMCACHE_ANNOUNCEMENTS_KEY
+        	memcacheService.put(announcementKey, announcementStringBuilder); 
 
         }
 
