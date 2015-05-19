@@ -42,6 +42,15 @@
     	<servlet-name>SendConfirmationEmail</servlet-name>
     	<url-pattern>/tasks/send_confirmation_email</url-pattern>
     </servlet-mapping>
+    
+    <servlet>
+    	<servlet-name>SessionConfirmationEmail</servlet-name>
+    	<servlet-class>com.google.devrel.training.conference.servlet.SessionConfirmationEmailServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+    	<servlet-name>SessionConfirmationEmail</servlet-name>
+    	<url-pattern>/tasks/session_confirmation_email</url-pattern>
+    </servlet-mapping>
       
  	<security-constraint>
         <web-resource-collection>

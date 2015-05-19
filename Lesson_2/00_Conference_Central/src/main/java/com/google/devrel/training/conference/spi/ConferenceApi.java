@@ -21,15 +21,19 @@ import com.google.devrel.training.conference.Constants;
 import com.google.devrel.training.conference.domain.Announcement;
 import com.google.devrel.training.conference.domain.Conference;
 import com.google.devrel.training.conference.domain.Profile;
+import com.google.devrel.training.conference.domain.Session;
 import com.google.devrel.training.conference.form.ConferenceForm;
 import com.google.devrel.training.conference.form.ConferenceQueryForm;
 import com.google.devrel.training.conference.form.ProfileForm;
 import com.google.devrel.training.conference.form.ProfileForm.TeeShirtSize;
+import com.google.devrel.training.conference.form.SessionForm;
+import com.google.devrel.training.conference.form.SessionForm.SessionType;
 import com.googlecode.objectify.Key;
 import com.googlecode.objectify.Work;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 
 import javax.inject.Named;
@@ -557,4 +561,155 @@ public class ConferenceApi {
 		}
 		return null;
 	}
+	
+	@ApiMethod(name = "getConferenceSessions", 
+			   path = "conference/{websafeConferenceKey}/sessions", 
+			   httpMethod = HttpMethod.GET)
+	public List<Session> getConferenceSessions(@Named("websafeConferenceKey") final String websafeConferenceKey) {
+		
+		Key<Conference> conferenceKey = Key.create(Conference.class, websafeConferenceKey);
+		Query<Session> query = ofy().load().type(Session.class)
+				.ancestor(conferenceKey).order("name");
+
+		return query.list();
+	}
+	
+	@ApiMethod(name = "getConferenceSessionsByType", 
+			   path = "conference/{websafeConferenceKey}/sessions/{sessionType}", 
+			   httpMethod = HttpMethod.GET)
+	public List<Session> getConferenceSessionsByType(@Named("websafeConferenceKey") final String websafeConferenceKey,
+													 @Named("sessionType") final SessionType sessionType) {
+		Key<Conference> conferenceKey = Key.create(Conference.class, websafeConferenceKey);
+		Query<Session> query = ofy().load().type(Session.class)
+				.ancestor(conferenceKey)
+				.filter("sessionType =", sessionType)
+				.order("name");
+
+		return query.list();
+	}
+	
+	@ApiMethod(name = "getSessionsBySpeaker", 
+			   path = "sessions/{speaker}", 
+			   httpMethod = HttpMethod.GET)
+	public List<Session> getSessionsBySpeaker(@Named("speaker") final String speaker) {
+		Query<Session> query = ofy().load().type(Session.class)
+				.filter("speaker =", speaker)
+				.order("name");
+
+		return query.list();
+	}
+	
+	@ApiMethod(name = "createSession", 
+			   path = "conference/{websafeConferenceKey}/sessions", 
+			   httpMethod = HttpMethod.POST)
+	public Session createSession(final User user, @Named("websafeConferenceKey") final String websafeConferenceKey,
+			final SessionForm sessionForm) throws UnauthorizedException {
+		if (user == null) {
+			throw new UnauthorizedException(
+					"Authorization required");
+		}
+		
+		return ofy().transact(new Work<Session>() {
+			public Session run() {
+				try {
+					//Enter transaction code here
+					String userId = user.getUserId();
+					Key<Conference> conferenceKey = Key.create(Conference.class, websafeConferenceKey);
+					
+					//Allocate key for session
+					final Key<Session> sessionKey = factory().allocateId(
+							conferenceKey, Session.class);
+					
+					// Get the Session Id from the Key
+					final Long sessionId = sessionKey.getId();
+					
+					Session session = new Session(websafeConferenceKey, sessionId, sessionForm.getName(), sessionForm.getSpeaker(), sessionForm.getStartTime(),
+												  sessionForm.getDuration(), sessionForm.getTypeOfSession(), userId);
+					
+					ofy().save().entities(session).now();
+					
+					Queue queue = QueueFactory.getDefaultQueue();
+					queue.add(ofy().getTransaction(), TaskOptions.Builder
+							.withUrl("/tasks/session_confirmation_email")
+							.param("email", user.getEmail())
+							.param("sessionInfo", session.toString()));
+					
+					return session;					
+				} catch( Exception ex ){
+					//oops something went wrong
+					System.out.println(ex);
+					return null;
+				}			
+			};
+		});
+	}
 }
+
+
+/*@ApiMethod(name = "createConference", path = "conference", httpMethod = HttpMethod.POST)
+public Conference createConference(final User user,
+		final ConferenceForm conferenceForm) throws UnauthorizedException {
+	return ofy().transact(new Work<Conference>() {
+		public Conference run() {
+			try {
+				if (user == null) {
+					throw new UnauthorizedException(
+							"Authorization required");
+				}
+
+				// TODO (Lesson 4)
+				// Get the userId of the logged in User
+				String userId = user.getUserId();
+				String email = user.getEmail();
+
+				// TODO (Lesson 4)
+				// Get the key for the User's Profile
+				Key<Profile> profileKey = Key.create(Profile.class, userId);
+
+				// TODO (Lesson 4)
+				// Allocate a key for the conference -- let App Engine
+				// allocate the ID
+				// Don't forget to include the parent Profile in the
+				// allocated ID
+				final Key<Conference> conferenceKey = factory().allocateId(
+						profileKey, Conference.class);
+
+				// TODO (Lesson 4)
+				// Get the Conference Id from the Key
+				final long conferenceId = conferenceKey.getId();
+
+				// TODO (Lesson 4)
+				// Get the existing Profile entity for the current user if
+				// there is one
+				// Otherwise create a new Profile entity with default values
+				Profile profile = getProfile(user);
+				if (profile == null) {
+					profile = new Profile(user.getUserId(),
+							extractDefaultDisplayNameFromEmail(email),
+							email, TeeShirtSize.NOT_SPECIFIED);
+				}
+
+				// TODO (Lesson 4)
+				// Create a new Conference Entity, specifying the user's
+				// Profile entity
+				// as the parent of the conference
+				Conference conference = new Conference(conferenceId,
+						userId, conferenceForm);
+
+				// TODO (Lesson 4)
+				// Save Conference and Profile Entities
+				ofy().save().entities(conference, profile).now();
+
+				Queue queue = QueueFactory.getDefaultQueue();
+				queue.add(ofy().getTransaction(), TaskOptions.Builder
+						.withUrl("/tasks/send_confirmation_email")
+						.param("email", profile.getMainEmail())
+						.param("conferenceInfo", conference.toString()));
+				
+				return conference;
+			} catch (Exception e) {
+				return null;
+			}
+		}
+	});
+}*/

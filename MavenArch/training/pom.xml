@@ -5,8 +5,8 @@
     <packaging>war</packaging>
     <version>1.0-SNAPSHOT</version>
 
-    <groupId>com.google.training.helloworld</groupId>
-    <artifactId>helloworld</artifactId>
+    <groupId>com.google.training</groupId>
+    <artifactId>training</artifactId>
 
     <properties>
         <appengine.app.version>1</appengine.app.version>
@@ -22,12 +22,12 @@
         <dependency>
             <groupId>com.google.appengine</groupId>
             <artifactId>appengine-api-1.0-sdk</artifactId>
-            <version>1.9.19</version>
+            <version>1.9.4</version>
         </dependency>
         <dependency>
             <groupId>com.google.appengine</groupId>
             <artifactId>appengine-endpoints</artifactId>
-            <version>1.9.19</version>
+            <version>1.9.4</version>
         </dependency>
         <dependency>
             <groupId>javax.servlet</groupId>
@@ -40,6 +40,11 @@
             <artifactId>javax.inject</artifactId>
             <version>1</version>
         </dependency>
+        <dependency>
+            <groupId>javax.jdo</groupId>
+            <artifactId>jdo-api</artifactId>
+            <version>3.0.1</version>
+        </dependency>
 
         <!-- Test Dependencies -->
         <dependency>
@@ -49,15 +54,21 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-all</artifactId>
+            <version>1.9.5</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>com.google.appengine</groupId>
             <artifactId>appengine-testing</artifactId>
-            <version>1.9.19</version>
+            <version>1.9.4</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.google.appengine</groupId>
             <artifactId>appengine-api-stubs</artifactId>
-            <version>1.9.19</version>
+            <version>1.9.4</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -66,6 +77,20 @@
         <!-- for hot reload of the web application-->
         <outputDirectory>${project.build.directory}/${project.build.finalName}/WEB-INF/classes</outputDirectory>
         <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>versions-maven-plugin</artifactId>
+                <version>2.1</version>
+                <executions>
+                    <!-- <execution>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>display-dependency-updates</goal>
+                            <goal>display-plugin-updates</goal>
+                        </goals>
+                    </execution> -->
+                </executions>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <version>3.1</version>
@@ -97,7 +122,7 @@
             <plugin>
                 <groupId>com.google.appengine</groupId>
                 <artifactId>appengine-maven-plugin</artifactId>
-                <version>1.9.19</version>
+                <version>1.9.4</version>
                 <configuration>
                     <enableJarClasses>false</enableJarClasses>
                     <!-- Comment in the below snippet to bind to all IPs instead of just localhost -->
@@ -108,7 +133,7 @@
                     <!-- jvmFlags>
                       <jvmFlag>-agentlib:jdwp=transport=dt_socket,address=8000,server=y,suspend=n</jvmFlag>
                     </jvmFlags -->
-                </configuration>                
+                </configuration>
                 <executions>
                     <execution>
                         <goals>
@@ -116,7 +141,6 @@
                         </goals>
                     </execution>
                 </executions>
-                
             </plugin>
         </plugins>
     </build>

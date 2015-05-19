@@ -1,0 +1,120 @@
+{
+  "extends" : "thirdParty.api",
+  "abstract" : false,
+  "root" : "https://groovy-stallion.appspot.com/_ah/api",
+  "name" : "helloworldendpoints",
+  "version" : "v1",
+  "description" : "API for hello world endpoints.",
+  "defaultVersion" : false,
+  "adapter" : {
+    "bns" : "https://groovy-stallion.appspot.com/_ah/spi",
+    "deadline" : 65.0,
+    "type" : "lily"
+  },
+  "auth" : {
+    "allowCookieAuth" : false
+  },
+  "frontendLimits" : {
+    "unregisteredUserQps" : -1,
+    "unregisteredQps" : -1,
+    "unregisteredDaily" : -1,
+    "rules" : [ ]
+  },
+  "cacheControl" : {
+    "type" : "no-cache",
+    "maxAge" : 0
+  },
+  "methods" : {
+    "helloworldendpoints.greetByPeriod" : {
+      "path" : "greetByPeriod",
+      "httpMethod" : "GET",
+      "authLevel" : "NONE",
+      "scopes" : [ "https://www.googleapis.com/auth/userinfo.email" ],
+      "audiences" : [ ],
+      "clientIds" : [ "replace this with your web client ID", "292824132082.apps.googleusercontent.com" ],
+      "rosyMethod" : "com.google.training.helloworld.HelloWorldEndpoints.greetByPeriod",
+      "request" : {
+        "parameters" : {
+          "name" : {
+            "type" : "string",
+            "required" : true
+          },
+          "period" : {
+            "type" : "string",
+            "required" : true
+          }
+        },
+        "body" : "empty"
+      },
+      "response" : {
+        "body" : "autoTemplate(backendResponse)"
+      }
+    },
+    "helloworldendpoints.sayHello" : {
+      "path" : "sayHello",
+      "httpMethod" : "GET",
+      "authLevel" : "NONE",
+      "scopes" : [ "https://www.googleapis.com/auth/userinfo.email" ],
+      "audiences" : [ ],
+      "clientIds" : [ "replace this with your web client ID", "292824132082.apps.googleusercontent.com" ],
+      "rosyMethod" : "com.google.training.helloworld.HelloWorldEndpoints.sayHello",
+      "request" : {
+        "body" : "empty"
+      },
+      "response" : {
+        "body" : "autoTemplate(backendResponse)"
+      }
+    },
+    "helloworldendpoints.sayHelloByName" : {
+      "path" : "sayHelloByName",
+      "httpMethod" : "GET",
+      "authLevel" : "NONE",
+      "scopes" : [ "https://www.googleapis.com/auth/userinfo.email" ],
+      "audiences" : [ ],
+      "clientIds" : [ "replace this with your web client ID", "292824132082.apps.googleusercontent.com" ],
+      "rosyMethod" : "com.google.training.helloworld.HelloWorldEndpoints.sayHelloByName",
+      "request" : {
+        "parameters" : {
+          "name" : {
+            "type" : "string",
+            "required" : true
+          }
+        },
+        "body" : "empty"
+      },
+      "response" : {
+        "body" : "autoTemplate(backendResponse)"
+      }
+    }
+  },
+  "descriptor" : {
+    "schemas" : {
+      "HelloClass" : {
+        "id" : "HelloClass",
+        "type" : "object",
+        "properties" : {
+          "message" : {
+            "type" : "string"
+          }
+        }
+      }
+    },
+    "methods" : {
+      "com.google.training.helloworld.HelloWorldEndpoints.greetByPeriod" : {
+        "response" : {
+          "$ref" : "HelloClass"
+        }
+      },
+      "com.google.training.helloworld.HelloWorldEndpoints.sayHello" : {
+        "response" : {
+          "$ref" : "HelloClass"
+        }
+      },
+      "com.google.training.helloworld.HelloWorldEndpoints.sayHelloByName" : {
+        "response" : {
+          "$ref" : "HelloClass"
+        }
+      }
+    }
+  }
+}
